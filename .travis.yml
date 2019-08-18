@@ -1,0 +1,51 @@
+language: java
+#Build fails due to oracle JDK8 support has ended. So using openjdk
+#jdk: oraclejdk8
+jdk: openjdk8
+
+#In order to speed up future builds, it's a good idea to keep the Maven local repository between different runs, 
+#as it would be the case on Jenkins or a local machine. The following configuration achieves just that:
+cache:
+  directories:
+  - $HOME/.m2
+
+#The chmod command is used to change the access mode of a file.
+before_install:
+  - chmod +x mvnw
+  - echo "=====Before Install====="
+  
+# Default ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+install:
+  - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
+before_script:
+  - echo "=====Before Script=====" 
+
+# Default ./mvnw test 
+#script:
+#  - echo "=====Script=====" 
+
+after_success:
+  - echo "=====After Success====="  
+after_failure:
+  - echo "=====After Failure====="
+ 
+after_script:
+  - echo "=====After Script====="  
+  
+# Blocklist
+branches:
+  except:
+  - legacy
+  - experimental
+  only:
+  - master
+  - /^deploy-.*$/
+ 
+notifications:
+  email:
+    recipients:
+     - saurabh.singh5788@gmail.com
+     - saurabh_57@hotmail.com
+    on_success: always # <always|never|change>  default: change
+    on_failure: always # <always|never|change>  default: always
