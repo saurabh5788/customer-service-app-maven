@@ -1,0 +1,93 @@
+#No Profile Settings
+spring.profiles.active:
+  - test-h2
+  - common  
+logging.pattern.console: "%d{yyyy-MM-dd}-%-5p-%-10c:%m%n" 
+logging.level:
+  com.learning.springboot: DEBUG
+  org:
+    springframework: ERROR
+    springframework.jdbc: DEBUG  
+    hibernate.SQL: INFO 
+---
+#Common Profile
+spring.profiles: common
+spring.application.name: customer-service-app
+management:
+  #port: 8080
+  security:
+    enabled: false 
+server.port: 8080
+# Enabling Random Vacant Port assignment
+# spring.port: ${PORT:0} 
+spring.jpa:
+  show-sql: true
+  hibernate:
+    naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+  properties.hibernate:
+    format_sql: true
+---
+#Dev MySQL Profile
+spring:
+  profiles: dev-mysql
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+  datasource:
+    url: jdbc:mysql://localhost/customer-service-app
+    username: root
+    password: 
+    driverClassName: com.mysql.jdbc.Driver
+    testWhileIdle: true
+    validationQuery: SELECT 1
+    platform: mysql
+    # Not Working
+    # data: classpath:customer-schema-mysql.sql, classpath:customer-data-mysql.sql
+    initialization-mode: always
+    continue-on-error: false
+  jpa:
+    generate-ddl: true   
+    hibernate:
+      ddl-auto: validate
+---
+#Dev DB2 Profile
+spring:
+  profiles: dev-db2
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.DB2Dialect  
+  datasource:
+    url: jdbc:db2://localhost:50000/IIP
+    username: db2admin
+    password: Fiserv@123 
+    driverClassName: com.ibm.db2.jcc.DB2Driver
+    testWhileIdle: true
+    validationQuery: SELECT 1
+    platform: DB2Platform
+    # Not Working
+    # data: "classpath:customer-schema-DB2Platform.sql, classpath:customer-data-DB2Platform.sql"
+    initialization-mode: always
+    continue-on-error: true
+  jpa:
+    generate-ddl: true   
+    hibernate:
+      ddl-auto: validate
+      
+---
+#Unit Testing H2 Profile
+spring:
+  profiles: test-h2
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+  datasource:
+    # url: jdbc:h2:mem:customer-service-app;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10 # In Memory Mode
+    url: jdbc:h2:file:./h2/customer-service-app;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE # Persistence Mode
+    username: sa
+    password: 
+    driverClassName: org.h2.Driver
+    testWhileIdle: true
+    validationQuery: SELECT 1
+    initialization-mode: always
+    continue-on-error: true
+  jpa:
+    generate-ddl: true   
+    hibernate:
+      ddl-auto: create-drop
+  h2.console:
+    enabled: true
+    path: /h2 
