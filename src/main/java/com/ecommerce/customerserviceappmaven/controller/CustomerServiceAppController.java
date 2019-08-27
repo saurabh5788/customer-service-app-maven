@@ -1,9 +1,12 @@
 package com.ecommerce.customerserviceappmaven.controller;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +19,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.ecommerce.customerserviceappmaven.dto.CustomerDTO;
 import com.ecommerce.customerserviceappmaven.entity.CustomerEntity;
 import com.ecommerce.customerserviceappmaven.service.CustomerService;
+import com.ecommerce.customerserviceappmaven.util.CustomerCache;
 
 @RestController
 @RequestMapping("/customerservice")
@@ -28,27 +33,14 @@ public class CustomerServiceAppController {
 			.getLogger(CustomerServiceAppController.class);
 	@Autowired
 	private CustomerService customerService;
-	private CustomerEntity customerBlank;
-	private CustomerEntity customerDummy;
+	private CustomerCache customerCache;
 
 	@Autowired
-	@Qualifier(value = "dummyCustomer")
-	public void setCustomerDummy(CustomerEntity customerEntity) {
-		this.customerDummy = customerEntity;
-		LOGGER.info("Dummy Customer Injected!!!");
-	}
-
-	@Autowired
-	@Qualifier(value = "blankCustomer")
-	public void setCustomerBlank(CustomerEntity customerBlank) {
-		this.customerBlank = customerBlank;
-		LOGGER.info("Blank Customer Injected!!!");
-	}
-
-	@GetMapping
-	public @ResponseBody
-	ResponseEntity<CustomerEntity> getCustomer() {
-		return new ResponseEntity<CustomerEntity>(customerDummy, HttpStatus.OK);
+	@Required
+	@Qualifier(value = "customerCache")
+	public void setCustomerCache(CustomerCache customerCache) {
+		this.customerCache = customerCache;
+		LOGGER.info("Customer Cache Injected!!!");
 	}
 
 	/*
@@ -56,14 +48,31 @@ public class CustomerServiceAppController {
 	 */
 	@GetMapping(value = "/{id}")
 	public @ResponseBody
-	ResponseEntity<CustomerEntity> getCustomer(@PathVariable Long id) {
+	ResponseEntity<CustomerDTO> getCustomer(@PathVariable Long id) {
 		// LOGGER.info("Instance ID : {}", instanceId);
-		CustomerEntity customer = customerService.getCustomer(id);
-		if (customer == null) {
-			return new ResponseEntity<CustomerEntity>(customerBlank,
-					HttpStatus.NOT_FOUND);
+		CustomerEntity customerEntity = customerService.getCustomer(id);
+		if (customerEntity == null) {
+			return new ResponseEntity<CustomerDTO>(HttpStatus.NOT_FOUND);
+		} else {
+			LOGGER.info("Customer Entity : {}", customerEntity);
+			CustomerDTO customerDTO = new CustomerDTO();
+			customerDTO.setName(customerEntity.getName());
+			customerDTO.setId(customerEntity.getId());
+			customerDTO.setEmail(customerEntity.getEmail());
+			Map<String, String> prefixCodes = customerCache.getPrefixCodes();
+			if (prefixCodes != null) {
+				String namePrefix = prefixCodes.get(customerEntity
+						.getCustomerNamePrefixEntity().getPrefixCode());
+				customerDTO.setNamePrefix(namePrefix);
+			}
+			else{
+				LOGGER.warn("Prefix Codes Not Loaded!!!");
+			}
+			LOGGER.info("Customer DTO : {}", customerDTO);
+			return new ResponseEntity<CustomerDTO>(customerDTO,
+					HttpStatus.FOUND);
 		}
-		return new ResponseEntity<CustomerEntity>(customer, HttpStatus.FOUND);
+
 	}
 
 	/*
@@ -78,8 +87,7 @@ public class CustomerServiceAppController {
 			LOGGER.info("Customer Name To Be Added \n", customer);
 			customerService.saveCustomer(customer);
 			HttpHeaders headers = new HttpHeaders();
-			headers.setLocation(ucBuilder
-					.path("/customerservice/{id}")
+			headers.setLocation(ucBuilder.path("/customerservice/{id}")
 					.buildAndExpand(customer.getId()).toUri());
 			return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
 		} else {

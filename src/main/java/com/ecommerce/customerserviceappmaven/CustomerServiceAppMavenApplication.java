@@ -1,5 +1,7 @@
 package com.ecommerce.customerserviceappmaven;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +15,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
 
-import com.ecommerce.customerserviceappmaven.entity.CustomerEntity;
-import com.ecommerce.customerserviceappmaven.entity.CustomerNamePrefixEntity;
+import com.ecommerce.customerserviceappmaven.service.CustomerService;
+import com.ecommerce.customerserviceappmaven.util.CustomerCache;
 
 @SpringBootApplication
 public class CustomerServiceAppMavenApplication implements ApplicationRunner,
@@ -44,32 +46,15 @@ public class CustomerServiceAppMavenApplication implements ApplicationRunner,
 		}
 	}
 
-	@Bean(name = "dummyCustomer")
-	@DependsOn(value = { "blankCustomer", "dummyCustomerNamePrefix" })
-	public CustomerEntity getDummyCustomerEntity(
-			@Autowired @Qualifier("blankCustomer") CustomerEntity dummyCustomer,
-			@Autowired @Qualifier("dummyCustomerNamePrefix") CustomerNamePrefixEntity dummyCustomerNamePrefix) {
-		dummyCustomer.setId(123L);
-		dummyCustomer.setName("Saurabh");
-		dummyCustomer.setEmail("xyz@gma.com");
-		dummyCustomer.setCustomerNamePrefixEntity(dummyCustomerNamePrefix);
-		LOGGER.info("Dummy Customer Bean Instantiated!!!");
-		return dummyCustomer;
-	}
-
-	@Bean(name = "blankCustomer")
-	public CustomerEntity getBlankCustomerEntity() {
-		LOGGER.info("Blank Customer Bean Instantiated!!!");
-		return new CustomerEntity();
-	}
-
-	@Bean(name = "dummyCustomerNamePrefix")
-	public CustomerNamePrefixEntity getCustomerNamePrefixEntity() {
-		CustomerNamePrefixEntity customerNamePrefixEntity = new CustomerNamePrefixEntity();
-		customerNamePrefixEntity.setName("Mr");
-		customerNamePrefixEntity.setPrefixCode("mr");
-		LOGGER.info("Dummy Customer Name Prefix Bean Instantiated!!!");
-		return customerNamePrefixEntity;
-	}
+	/*@Bean(name = "customerCache")
+	@DependsOn(value = "customerService")
+	public CustomerCache getCustomerCache(
+			@Autowired @Qualifier("customerService") CustomerService customerService) {
+		Map<String, String> prefixCodes = customerService.getPrefixCodes();
+		CustomerCache customerCache = new CustomerCache();
+		customerCache.setPrefixCodes(prefixCodes);
+		LOGGER.info("Customer Cache Initialized!!!");
+		return customerCache;
+	}*/
 
 }

@@ -8,12 +8,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import com.ecommerce.customerserviceappmaven.dto.AbstractObject;
 
 @Entity
 @Table(name = "CUSTOMER")
-public class CustomerEntity {
+public class CustomerEntity extends AbstractObject {
 	public CustomerEntity(CustomerEntity customerEntity) {
 		id = customerEntity.id;
 		name = customerEntity.name;
@@ -67,11 +66,5 @@ public class CustomerEntity {
 	public void setCustomerNamePrefixEntity(
 			CustomerNamePrefixEntity customerNamePrefixEntity) {
 		this.customerNamePrefixEntity = customerNamePrefixEntity;
-	}
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this,
-				ToStringStyle.MULTI_LINE_STYLE);
 	}
 }
