@@ -1,11 +1,7 @@
 package com.ecommerce.customerserviceappmaven;
 
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -13,10 +9,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
-import com.ecommerce.customerserviceappmaven.service.CustomerService;
-import com.ecommerce.customerserviceappmaven.util.CustomerCache;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 @SpringBootApplication
 public class CustomerServiceAppMavenApplication implements ApplicationRunner,
@@ -56,5 +52,12 @@ public class CustomerServiceAppMavenApplication implements ApplicationRunner,
 		LOGGER.info("Customer Cache Initialized!!!");
 		return customerCache;
 	}*/
-
+	
+	@Bean
+    public Jackson2ObjectMapperBuilder jacksonBuilder() {
+        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+        builder.featuresToEnable(SerializationFeature.WRAP_ROOT_VALUE); // enables wrapping for root elements
+        builder.featuresToEnable(DeserializationFeature.UNWRAP_ROOT_VALUE); // enables wrapping for root elements
+        return builder;
+    }
 }

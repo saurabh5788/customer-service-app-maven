@@ -2,11 +2,12 @@ package com.ecommerce.customerserviceappmaven.service;
 
 import java.util.Map;
 
-import com.ecommerce.customerserviceappmaven.entity.CustomerEntity;
+import com.ecommerce.customerserviceappmaven.dto.CustomerDTO;
+import com.ecommerce.customerserviceappmaven.dto.CustomersDTO;
 
 public interface CustomerService {
-	CustomerEntity getCustomer(Long id);
-	void saveCustomer(CustomerEntity customer);
+	CustomerDTO getCustomer(Long id);
+	void saveCustomer(CustomerDTO customer);
 	
-	Map<String,String> getPrefixCodes();
+	CustomersDTO getCustomers();
 }

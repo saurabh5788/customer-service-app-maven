@@ -1,7 +1,9 @@
 package com.ecommerce.customerserviceappmaven.entity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -31,7 +33,7 @@ public class CustomerEntity extends AbstractObject {
 	private String name;
 	@Column(name = "EMAIL", length = 64, nullable = false)
 	private String email;
-	@ManyToOne
+	@ManyToOne(targetEntity = CustomerNamePrefixEntity.class, fetch = FetchType.LAZY, cascade=CascadeType.ALL)
 	@JoinColumn(name = "PREFIX_CD")
 	private CustomerNamePrefixEntity customerNamePrefixEntity;
 

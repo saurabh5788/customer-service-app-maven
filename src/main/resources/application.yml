@@ -59,13 +59,13 @@ spring:
     driverClassName: com.ibm.db2.jcc.DB2Driver
     testWhileIdle: true
     validationQuery: SELECT 1
-    platform: DB2Platform
+    # platform: DB2Platform
     # Not Working
     # data: "classpath:customer-schema-DB2Platform.sql, classpath:customer-data-DB2Platform.sql"
     initialization-mode: always
     continue-on-error: true
   jpa:
-    generate-ddl: true   
+    generate-ddl: false   
     hibernate:
       ddl-auto: validate
       

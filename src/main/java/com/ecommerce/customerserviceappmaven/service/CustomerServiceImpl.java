@@ -1,50 +1,57 @@
 package com.ecommerce.customerserviceappmaven.service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import com.ecommerce.customerserviceappmaven.dao.CustomerDaoRepository;
-import com.ecommerce.customerserviceappmaven.dao.CustomerNamePreifxDaoRepository;
+import com.ecommerce.customerserviceappmaven.dto.CustomerDTO;
+import com.ecommerce.customerserviceappmaven.dto.CustomersDTO;
 import com.ecommerce.customerserviceappmaven.entity.CustomerEntity;
-import com.ecommerce.customerserviceappmaven.entity.CustomerNamePrefixEntity;
+import com.ecommerce.customerserviceappmaven.util.CustomerHelper;
 
 @Transactional
 @Service
 public class CustomerServiceImpl implements CustomerService {
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(CustomerServiceImpl.class);
+	@Autowired
+	CustomerDaoRepository customerDao;	
+	private CustomerHelper customerHelper;
 
 	@Autowired
-	CustomerDaoRepository customerDao;
-	@Autowired
-	CustomerNamePreifxDaoRepository customerNamePreifxDao;
-
+	@Required
+	@Qualifier(value = "customerHelper")
+	public void setCustomerHelper(CustomerHelper customerHelper) {
+		this.customerHelper = customerHelper;
+		LOGGER.info("Customer Helper Injected!!!");
+	}
+	
 	@Override
-	public CustomerEntity getCustomer(Long id) {
-		return customerDao.findOne(id);
+	public CustomerDTO getCustomer(Long id) {
+		CustomerEntity customerEntity = customerDao.findOne(id);
+		CustomerDTO customerDTO = customerHelper.getCustomerDTO(customerEntity);
+		return customerDTO;
+	}
+	@Override
+	public void saveCustomer(CustomerDTO customer) {
+		CustomerEntity customerEntity = customerHelper.getCustomerEntity(customer);
+		customerDao.save(customerEntity);
+		
+	}
+	
+	@Override
+	public CustomersDTO getCustomers() {
+		List<CustomerEntity> customerEntities = customerDao.findAll();
+		CustomersDTO customersDTO = customerHelper.getCustomersDTO(customerEntities);
+		return customersDTO;
 	}
 
-	@Override
-	public void saveCustomer(CustomerEntity customer) {
-		customerDao.save(customer);
-	}
-
-	@Override
-	public Map<String, String> getPrefixCodes() {
-		Map<String, String> prefixMap = new HashMap<String, String>();
-		List<CustomerNamePrefixEntity> customerPrefixList = customerNamePreifxDao
-				.findAll();
-		if (!CollectionUtils.isEmpty(customerPrefixList)) {
-			for (CustomerNamePrefixEntity customerNamePrefixEntity : customerPrefixList) {
-				prefixMap.put(customerNamePrefixEntity.getPrefixCode(),
-						customerNamePrefixEntity.getName());
-			}
-		}
-
-		return prefixMap;
-	}
+	
 }
